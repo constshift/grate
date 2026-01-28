@@ -61,19 +61,17 @@ import (
 )
 
 func main() {
-    // Read file into memory
-    data, _ := os.ReadFile("data.xlsx")
-
-    // Open from byte slice
-    wb, _ := grate.OpenBytes(data)
-    defer wb.Close()
-
-    sheets, _ := wb.List()
-    sheet, _ := wb.Get(sheets[0])
-
-    for sheet.Next() {
-        fmt.Println(sheet.Strings())
+    d, _ := os.ReadFile(os.Args[1])  // Read file into memory
+    wb, _ := grate.OpenBytes(d)      // open the file
+    sheets, _ := wb.List()           // list available sheets
+    for _, s := range sheets {       // enumerate each sheet name
+        sheet, _ := wb.Get(s)        // open the sheet
+        for sheet.Next() {           // enumerate each row of data
+            row := sheet.Strings()   // get the row's content as []string
+            fmt.Println(strings.Join(row, "\t"))
+        }
     }
+    wb.Close()
 }
 ```
 
