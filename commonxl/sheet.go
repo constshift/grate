@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/pbnjay/grate"
+	"github.com/constshift/grate"
 )
 
 // Sheet holds raw and rendered values for a spreadsheet.
@@ -173,7 +173,9 @@ func (s *Sheet) Formats() []string {
 
 // Scan extracts values from the current record into the provided arguments
 // Arguments must be pointers to one of 5 supported types:
-//     bool, int64, float64, string, or time.Time
+//
+//	bool, int64, float64, string, or time.Time
+//
 // If invalid, returns ErrInvalidScanType
 func (s *Sheet) Scan(args ...interface{}) error {
 	row := s.Rows[s.CurRow-1]

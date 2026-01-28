@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pbnjay/grate"
-	_ "github.com/pbnjay/grate/simple"
-	_ "github.com/pbnjay/grate/xls"
-	_ "github.com/pbnjay/grate/xlsx"
+	"github.com/constshift/grate"
+	_ "github.com/constshift/grate/simple"
+	_ "github.com/constshift/grate/xls"
+	_ "github.com/constshift/grate/xlsx"
 )
 
 // Example 1: Opening from byte slice

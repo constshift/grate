@@ -5,7 +5,7 @@ import (
 	"encoding/csv"
 	"os"
 
-	"github.com/pbnjay/grate"
+	"github.com/constshift/grate"
 )
 
 var _ = grate.RegisterWithBytes("csv", 15, OpenCSV, OpenCSVBytes)

@@ -14,10 +14,10 @@ import (
 	"log"
 	"sync"
 
-	"github.com/pbnjay/grate"
-	"github.com/pbnjay/grate/commonxl"
-	"github.com/pbnjay/grate/xls/cfb"
-	"github.com/pbnjay/grate/xls/crypto"
+	"github.com/constshift/grate"
+	"github.com/constshift/grate/commonxl"
+	"github.com/constshift/grate/xls/cfb"
+	"github.com/constshift/grate/xls/crypto"
 )
 
 var _ = grate.RegisterWithBytes("xls", 1, Open, OpenBytes)

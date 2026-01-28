@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pbnjay/grate"
-	"github.com/pbnjay/grate/commonxl"
+	"github.com/constshift/grate"
+	"github.com/constshift/grate/commonxl"
 )
 
 var _ = grate.RegisterWithBytes("xlsx", 5, Open, OpenBytes)

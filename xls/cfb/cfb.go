@@ -15,7 +15,7 @@ import (
 	"log"
 	"unicode/utf16"
 
-	"github.com/pbnjay/grate"
+	"github.com/constshift/grate"
 )
 
 const fullAssertions = true

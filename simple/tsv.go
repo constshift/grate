@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pbnjay/grate"
+	"github.com/constshift/grate"
 )
 
 var _ = grate.RegisterWithBytes("tsv", 10, OpenTSV, OpenTSVBytes)

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pbnjay/grate"
+	"github.com/constshift/grate"
 )
 
 // represents a set of data collections.
@@ -70,7 +70,8 @@ func (t *simpleFile) Types() []string {
 
 // Scan extracts values from the current record into the provided arguments
 // Arguments must be pointers to one of 5 supported types:
-//     bool, int, float64, string, or time.Time
+//
+//	bool, int, float64, string, or time.Time
 func (t *simpleFile) Scan(args ...interface{}) error {
 	var err error
 	row := t.rows[t.iterRow]

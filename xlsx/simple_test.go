@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/pbnjay/grate/commonxl"
+	"github.com/constshift/grate/commonxl"
 )
 
 var testFilePairs = [][]string{
