@@ -1,6 +1,7 @@
 package cfb
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -14,6 +15,17 @@ func Open(filename string) (*Document, error) {
 		return nil, err
 	}
 	err = d.load(f)
+	if err != nil {
+		return nil, err
+	}
+	return d, nil
+}
+
+// OpenBytes opens a Compound File Binary Format document from in-memory data.
+func OpenBytes(data []byte) (*Document, error) {
+	d := &Document{}
+	r := bytes.NewReader(data)
+	err := d.load(r)
 	if err != nil {
 		return nil, err
 	}

@@ -50,9 +50,13 @@ type Collection interface {
 	Err() error
 }
 
-// OpenFunc defines a Source's instantiation function.
+// OpenFunc defines a Source's instantiation function from a filename.
 // It should return ErrNotInFormat immediately if filename is not of the correct file type.
 type OpenFunc func(filename string) (Source, error)
+
+// OpenBytesFunc defines a Source's instantiation function from in-memory data.
+// It should return ErrNotInFormat immediately if data is not of the correct file type.
+type OpenBytesFunc func(data []byte) (Source, error)
 
 // Open a tabular data file and return a Source for accessing it's contents.
 func Open(filename string) (Source, error) {
@@ -71,20 +75,46 @@ func Open(filename string) (Source, error) {
 	return nil, ErrUnknownFormat
 }
 
+// OpenBytes opens tabular data from an in-memory byte slice and returns a Source for accessing its contents.
+func OpenBytes(data []byte) (Source, error) {
+	for _, o := range srcTable {
+		if o.opBytes == nil {
+			continue
+		}
+		src, err := o.opBytes(data)
+		if err == nil {
+			return src, nil
+		}
+		if !errors.Is(err, ErrNotInFormat) {
+			return nil, err
+		}
+		if Debug {
+			log.Println("  data is not in", o.name, "format")
+		}
+	}
+	return nil, ErrUnknownFormat
+}
+
 type srcOpenTab struct {
-	name string
-	pri  int
-	op   OpenFunc
+	name    string
+	pri     int
+	op      OpenFunc
+	opBytes OpenBytesFunc
 }
 
 var srcTable = make([]*srcOpenTab, 0, 20)
 
 // Register the named source as a grate datasource implementation.
 func Register(name string, priority int, opener OpenFunc) error {
+	return RegisterWithBytes(name, priority, opener, nil)
+}
+
+// RegisterWithBytes registers the named source as a grate datasource implementation with in-memory support.
+func RegisterWithBytes(name string, priority int, opener OpenFunc, openerBytes OpenBytesFunc) error {
 	if Debug {
 		log.Println("Registering the", name, "format at priority", priority)
 	}
-	srcTable = append(srcTable, &srcOpenTab{name: name, pri: priority, op: opener})
+	srcTable = append(srcTable, &srcOpenTab{name: name, pri: priority, op: opener, opBytes: openerBytes})
 	sort.Slice(srcTable, func(i, j int) bool {
 		return srcTable[i].pri < srcTable[j].pri
 	})

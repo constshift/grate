@@ -20,7 +20,7 @@ import (
 	"github.com/pbnjay/grate/xls/crypto"
 )
 
-var _ = grate.Register("xls", 1, Open)
+var _ = grate.RegisterWithBytes("xls", 1, Open, OpenBytes)
 
 // WorkBook represents an Excel workbook containing 1 or more sheets.
 type WorkBook struct {
@@ -54,11 +54,23 @@ func Open(filename string) (grate.Source, error) {
 	if err != nil {
 		return nil, err
 	}
+	return openWorkbook(doc, filename)
+}
 
+// OpenBytes opens an XLS workbook from in-memory data.
+func OpenBytes(data []byte) (grate.Source, error) {
+	doc, err := cfb.OpenBytes(data)
+	if err != nil {
+		return nil, err
+	}
+	return openWorkbook(doc, "<memory>")
+}
+
+// openWorkbook is a helper function that creates a WorkBook from a CFB document.
+func openWorkbook(doc *cfb.Document, filename string) (grate.Source, error) {
 	b := &WorkBook{
-		filename: filename,
-		doc:      doc,
-
+		filename:      filename,
+		doc:           doc,
 		pos2substream: make(map[int64]int, 16),
 		xfs:           make([]uint16, 0, 128),
 	}
