@@ -2,6 +2,7 @@ package xlsx
 
 import (
 	"archive/zip"
+	"bytes"
 	"encoding/xml"
 	"errors"
 	"io"
@@ -14,7 +15,7 @@ import (
 	"github.com/pbnjay/grate/commonxl"
 )
 
-var _ = grate.Register("xlsx", 5, Open)
+var _ = grate.RegisterWithBytes("xlsx", 5, Open, OpenBytes)
 
 // Document contains an Office Open XML document.
 type Document struct {
@@ -38,7 +39,10 @@ func (d *Document) Close() error {
 	d.strings = nil
 	d.sheets = d.sheets[:0]
 	d.sheets = nil
-	return d.f.Close()
+	if d.f != nil {
+		return d.f.Close()
+	}
+	return nil
 }
 
 func Open(filename string) (grate.Source, error) {
@@ -54,6 +58,21 @@ func Open(filename string) (grate.Source, error) {
 	if err != nil {
 		return nil, grate.WrapErr(err, grate.ErrNotInFormat)
 	}
+	return parseDocument(z, filename, f)
+}
+
+// OpenBytes opens an XLSX workbook from in-memory data.
+func OpenBytes(data []byte) (grate.Source, error) {
+	r := bytes.NewReader(data)
+	z, err := zip.NewReader(r, int64(len(data)))
+	if err != nil {
+		return nil, grate.WrapErr(err, grate.ErrNotInFormat)
+	}
+	return parseDocument(z, "<memory>", nil)
+}
+
+// parseDocument is a helper function that parses an XLSX document from a zip reader.
+func parseDocument(z *zip.Reader, filename string, f *os.File) (grate.Source, error) {
 	d := &Document{
 		filename: filename,
 		f:        f,

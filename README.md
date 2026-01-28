@@ -12,6 +12,8 @@ There are certainly still some bugs and edge cases, but we have run it successfu
 
 Grate provides a simple standard interface for all supported filetypes, allowing access to both named worksheets in spreadsheets and single tables in plaintext formats.
 
+## Opening from File
+
 ```go
 package main
 
@@ -28,6 +30,39 @@ import (
 
 func main() {
     wb, _ := grate.Open(os.Args[1])  // open the file
+    sheets, _ := wb.List()           // list available sheets
+    for _, s := range sheets {       // enumerate each sheet name
+        sheet, _ := wb.Get(s)        // open the sheet
+        for sheet.Next() {           // enumerate each row of data
+            row := sheet.Strings()   // get the row's content as []string
+            fmt.Println(strings.Join(row, "\t"))
+        }
+    }
+    wb.Close()
+}
+```
+
+## Opening from Memory
+
+Grate supports opening files directly from memory, which is useful for processing data from HTTP requests, embedded files, or other sources without writing to disk.
+
+```go
+package main
+
+import (
+    "fmt"
+    "io"
+    "os"
+
+    "github.com/pbnjay/grate"
+    _ "github.com/pbnjay/grate/simple"
+    _ "github.com/pbnjay/grate/xls"
+    _ "github.com/pbnjay/grate/xlsx"
+)
+
+func main() {
+    d, _ := os.ReadFile(os.Args[1])  // Read file into memory
+    wb, _ := grate.OpenBytes(d)      // open the file
     sheets, _ := wb.List()           // list available sheets
     for _, s := range sheets {       // enumerate each sheet name
         sheet, _ := wb.Get(s)        // open the sheet

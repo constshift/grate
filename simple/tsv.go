@@ -2,13 +2,15 @@ package simple
 
 import (
 	"bufio"
+	"bytes"
+	"io"
 	"os"
 	"strings"
 
 	"github.com/pbnjay/grate"
 )
 
-var _ = grate.Register("tsv", 10, OpenTSV)
+var _ = grate.RegisterWithBytes("tsv", 10, OpenTSV, OpenTSVBytes)
 
 // OpenTSV defines a Source's instantiation function.
 // It should return ErrNotInFormat immediately if filename is not of the correct file type.
@@ -18,19 +20,30 @@ func OpenTSV(filename string) (grate.Source, error) {
 		return nil, err
 	}
 	defer f.Close()
+	return parseTSV(f, filename)
+}
+
+// OpenTSVBytes opens TSV data from an in-memory byte slice.
+func OpenTSVBytes(data []byte) (grate.Source, error) {
+	r := bytes.NewReader(data)
+	return parseTSV(r, "<memory>")
+}
+
+// parseTSV is a helper function that parses TSV data from an io.Reader.
+func parseTSV(r io.Reader, filename string) (grate.Source, error) {
 	t := &simpleFile{
 		filename: filename,
 		iterRow:  -1,
 	}
 
-	s := bufio.NewScanner(f)
+	s := bufio.NewScanner(r)
 	total := 0
 	ncols := make(map[int]int)
 	for s.Scan() {
-		r := strings.Split(s.Text(), "\t")
-		ncols[len(r)]++
+		row := strings.Split(s.Text(), "\t")
+		ncols[len(row)]++
 		total++
-		t.rows = append(t.rows, r)
+		t.rows = append(t.rows, row)
 	}
 	if s.Err() != nil {
 		// this can only be read errors, not format

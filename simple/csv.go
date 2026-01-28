@@ -1,13 +1,14 @@
 package simple
 
 import (
+	"bytes"
 	"encoding/csv"
 	"os"
 
 	"github.com/pbnjay/grate"
 )
 
-var _ = grate.Register("csv", 15, OpenCSV)
+var _ = grate.RegisterWithBytes("csv", 15, OpenCSV, OpenCSVBytes)
 
 // OpenCSV defines a Source's instantiation function.
 // It should return ErrNotInFormat immediately if filename is not of the correct file type.
@@ -17,12 +18,22 @@ func OpenCSV(filename string) (grate.Source, error) {
 		return nil, err
 	}
 	defer f.Close()
+	return parseCSV(csv.NewReader(f), filename)
+}
+
+// OpenCSVBytes opens CSV data from an in-memory byte slice.
+func OpenCSVBytes(data []byte) (grate.Source, error) {
+	r := bytes.NewReader(data)
+	return parseCSV(csv.NewReader(r), "<memory>")
+}
+
+// parseCSV is a helper function that parses CSV data from a csv.Reader.
+func parseCSV(s *csv.Reader, filename string) (grate.Source, error) {
 	t := &simpleFile{
 		filename: filename,
 		iterRow:  -1,
 	}
 
-	s := csv.NewReader(f)
 	s.FieldsPerRecord = -1
 
 	total := 0
